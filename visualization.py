@@ -8,7 +8,7 @@ plt.set_cmap('Greys')
 from prepare_data import prepare_raws, prepare_labels
 
 
-def visualizer(model, X_test, y_test):
+def visualizer(model):
     sizes = 256
     three_channels = False
     names_raw = glob('data/Test_images/raws/*.png')

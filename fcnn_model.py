@@ -4,7 +4,6 @@ np.random.seed(123)
 
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
-from keras import callbacks
 from keras.optimizers import SGD, Adam, RMSprop
 import keras.backend as K
 from keras.layers import Dropout, Activation, Convolution2D, MaxPooling2D, UpSampling2D, BatchNormalization, Dense
@@ -23,17 +22,6 @@ def dice_coef(y_true, y_pred):
     return (2.0 * intersection + 1.0) / (K.sum(y_true_f) + K.sum(y_pred_f) + 1.0)
 
 
-# def jacard_coef(y_true, y_pred):
-#     y_true_f = K.flatten(y_true)
-#     y_pred_f = K.flatten(y_pred)
-#     intersection = K.sum(y_true_f * y_pred_f)
-#     return (intersection + 1.0) / (K.sum(y_true_f) + K.sum(y_pred_f) - intersection + 1.0)
-
-# Losses, based on metrics
-# def jacard_coef_loss(y_true, y_pred):
-#     return -jacard_coef(y_true, y_pred)
-#
-#
 def dice_coef_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
 
@@ -85,18 +73,15 @@ def build_model(raws):
 
 
     learning_rate = 0.001
-    # opt_choosing = "Adam" # SGD or RMS or Adam
-    # if opt_choosing == "SGD":
-    #     optimizer     = SGD(lr=learning_rate, decay=1e-6, momentum=0.9, nesterov=True)
-    # elif opt_choosing == "Adam":
-    #     optimizer    = Adam(lr=learning_rate)
-    # elif opt_choosing == "RMS":
-    #     optimizer = RMSprop(lr=learning_rate)
-    # optimizer = SGD(lr=learning_rate, decay=1e-6, momentum=0.9, nesterov=True)
-    optimizer = Adam()
+    opt_choosing = "Adam" # SGD or RMS or Adam
+    if opt_choosing == "SGD":
+        optimizer     = SGD(lr=learning_rate, decay=1e-6, momentum=0.9, nesterov=True)
+    elif opt_choosing == "Adam":
+        optimizer    = Adam()
+    elif opt_choosing == "RMS":
+        optimizer = RMSprop(lr=learning_rate)
 
     model.compile(loss="binary_crossentropy",
-                  # loss=dice_coef_loss,
                   optimizer=optimizer,
                   metrics=[dice_coef])
     print(model.summary())
@@ -137,7 +122,7 @@ def train_model(X_train, y_train, p_X_train, p_y_train ):
 
 def test_visualization(X_test, y_test):
     model = keras.models.load_model("best_models/best_model-462-0.01.hdf5", custom_objects={"dice_coef": dice_coef})
-    visualizer(model, X_test, y_test)
+    visualizer(model)
 
 
 
